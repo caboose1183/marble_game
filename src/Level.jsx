@@ -203,7 +203,7 @@ export function Level({
     const blocks = [];
 
     for (let i = 0; i < count; i++) {
-      const type = types[0];
+      const type = types[Math.floor(Math.random() * types.length)];
       blocks.push(type);
     }
 
@@ -213,6 +213,12 @@ export function Level({
   return (
     <>
       <BlockStart position={[0, 0, 0]} />
+
+      {blocks.map((Block, index) => (
+        <Block key={index} position={[0, 0, -(index + 1) * 4]} />
+      ))}
+
+      <BlockEnd position={[0, 0, - (count + 1) * 4]} />
     </>
   );
 }
