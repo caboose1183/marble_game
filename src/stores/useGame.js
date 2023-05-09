@@ -6,13 +6,17 @@ export default create(
     return {
       blocksCount: 3,
 
+      // timer
+      startTime: 0,
+      endTime: 0,
+
       // phases
       phase: "ready",
 
       start: () => {
         set((state) => {
           if (state.phase === "ready") {
-            return { phase: "playing" };
+            return { phase: "playing", startTime: Date.now() };
           }
 
           return {};
@@ -34,7 +38,7 @@ export default create(
 
         set((state) => {
           if (state.phase === "playing") {
-            return { phase: "ended" };
+            return { phase: "ended", endTime: Date.now() };
           }
 
           return {};
