@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
+import { useGLTF } from "@react-three/drei";
 
 // fixes colour when r3f used
 THREE.ColorManagement.legacyMode = false;
@@ -15,8 +16,8 @@ const floor2Material = new THREE.MeshStandardMaterial({ color: "greenyellow" });
 const obstacleMaterial = new THREE.MeshStandardMaterial({ color: "orangered" });
 const wallMaterial = new THREE.MeshStandardMaterial({ color: "slategrey" });
 
-// function adds starting blocks
-function BlockStart({ position = [0, 0, 0] }) {
+// function adds start block
+export function BlockStart({ position = [0, 0, 0] }) {
   return (
     <group position={position}>
       <mesh
@@ -30,8 +31,38 @@ function BlockStart({ position = [0, 0, 0] }) {
   );
 }
 
+// function adds end block
+export function BlockEnd({ position = [0, 0, 0] }) {
+  const hamburger = useGLTF("./hamburger.glb");
+
+  hamburger.scene.children.forEach((mesh) => {
+    mesh.castShadow = true;
+  });
+
+  return (
+    <group position={position}>
+      <mesh
+        geometry={boxGeometry}
+        material={floor1Material}
+        position={[0, 0, 0]}
+        scale={[4, 0.2, 4]}
+        receiveShadow
+      />
+      <RigidBody
+        type="fixed"
+        colliders="hull"
+        position={[0, 0.25, 0]}
+        restitution={0.2}
+        friction={0}
+      >
+        <primitive object={hamburger.scene} scale={0.2} />
+      </RigidBody>
+    </group>
+  );
+}
+
 // function adds spinner block
-function BlockSpinner({ position = [0, 0, 0] }) {
+export function BlockSpinner({ position = [0, 0, 0] }) {
   const obstacle = useRef();
   const [speed] = useState(
     () => (Math.random() + 0.2) * (Math.random() < 0.5 ? -1 : 1)
@@ -75,7 +106,7 @@ function BlockSpinner({ position = [0, 0, 0] }) {
 }
 
 // function adds limbo block
-function BlockLimbo({ position = [0, 0, 0] }) {
+export function BlockLimbo({ position = [0, 0, 0] }) {
   const obstacle = useRef();
   const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
 
@@ -120,7 +151,7 @@ function BlockLimbo({ position = [0, 0, 0] }) {
 }
 
 // function adds axe block
-function BlockAxe({ position = [0, 0, 0] }) {
+export function BlockAxe({ position = [0, 0, 0] }) {
   const obstacle = useRef();
   const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
 
@@ -164,13 +195,24 @@ function BlockAxe({ position = [0, 0, 0] }) {
   );
 }
 
-export default function Level() {
+export function Level({
+  count = 5,
+  types = [BlockSpinner, BlockAxe, BlockLimbo],
+}) {
+  const blocks = useMemo(() => {
+    const blocks = [];
+
+    for (let i = 0; i < count; i++) {
+      const type = types[0];
+      blocks.push(type);
+    }
+
+    return blocks;
+  }, [count, types]);
+
   return (
     <>
-      <BlockStart position={[0, 0, 12]} />
-      <BlockSpinner position={[0, 0, 8]} />
-      <BlockLimbo position={[0, 0, 4]} />
-      <BlockAxe position={[0, 0, 0]} />
+      <BlockStart position={[0, 0, 0]} />
     </>
   );
 }
