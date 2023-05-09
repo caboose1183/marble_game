@@ -1,42 +1,45 @@
 import { create } from "zustand";
+import { subscribeWithSelector } from "zustand/middleware";
 
-export default create((set) => {
-  return {
-    blocksCount: 3,
+export default create(
+  subscribeWithSelector((set) => {
+    return {
+      blocksCount: 3,
 
-    // phases
-    phase: "ready",
+      // phases
+      phase: "ready",
 
-    start: () => {
-      set((state) => {
-        if (state.phase === "ready") {
-          return { phase: "playing" };
-        }
+      start: () => {
+        set((state) => {
+          if (state.phase === "ready") {
+            return { phase: "playing" };
+          }
 
-        return {};
-      });
-    },
+          return {};
+        });
+      },
 
-    restart: () => {
-      set((state) => {
-        if (state.phase === "playing" || state.phase === "ended") {
-          return { phase: "ready" };
-        }
+      restart: () => {
+        set((state) => {
+          if (state.phase === "playing" || state.phase === "ended") {
+            return { phase: "ready" };
+          }
 
-        return {};
-      });
-    },
+          return {};
+        });
+      },
 
-    end: () => {
-      console.log("the end");
+      end: () => {
+        console.log("the end");
 
-      set((state) => {
-        if (state.phase === "playing") {
-          return { phase: "ended" };
-        }
+        set((state) => {
+          if (state.phase === "playing") {
+            return { phase: "ended" };
+          }
 
-        return {};
-      });
-    },
-  };
-});
+          return {};
+        });
+      },
+    };
+  })
+);

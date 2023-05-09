@@ -25,6 +25,7 @@ export default function Player() {
   const restart = useGame((state) => state.restart);
   const blocksCount = useGame((state) => state.blocksCount);
 
+  // jumping function
   const jump = () => {
     const origin = body.current.translation();
     origin.y -= 0.31;
@@ -37,7 +38,23 @@ export default function Player() {
     }
   };
 
+  // reset function
+  const reset = () => {
+    body.current.setTranslation({ x: 0, y: 1, z: 0 });
+    body.current.setLinvel({ x: 0, y: 0, z: 0 });
+    body.current.setAngvel({ x: 0, y: 0, z: 0 });
+  };
+
   useEffect(() => {
+    const unsubscribeReset = useGame.subscribe(
+      (state) => state.phase,
+      (phase) => {
+        if (phase === "ready") {
+          reset();
+        }
+      }
+    );
+
     const unsubscribeJump = subscribeKeys(
       (state) => state.jump,
       (value) => {
@@ -54,6 +71,7 @@ export default function Player() {
     return () => {
       unsubscribeJump();
       unsubscribeAny();
+      unsubscribeReset();
     };
   }, []);
 
